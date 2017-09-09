@@ -1,4 +1,8 @@
+# Direct dependencies
 numpy
+gmpy
+
+# Testing
 pytest
 pytest-fancy
 
