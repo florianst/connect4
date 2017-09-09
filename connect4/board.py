@@ -19,13 +19,13 @@ class Board:
     |  |-------------- Fifth row from the bottom is not set
     |----------------- Top row is not set
     
-    However, this structure is not commonly exposed to the user of this data structure. The convenience methods
-    of this class allow you to print out the board for debugging, get valid next boards, insert a coin to the board,
-    determine the winner, etc.
+    However, this structure is not commonly exposed to the user of this data structure. The
+    convenience methods of this class allow you to print out the board for debugging, get valid
+    next boards, insert a coin to the board, determine the winner, etc.
     
-    The symbols of the two players are defined to be O and X instead of colors. O always starts the game.
-    You can get the cell state ('O', 'X' or None) of the 4-th row from the top in the 3-th column (indexes starting at
-    0) by using ``board[3, 2]``.
+    The symbols of the two players are defined to be O and X instead of colors. O always starts
+    the game. You can get the cell state ('O', 'X' or None) of the 4-th row from the top in the
+    3-th column (indexes starting at 0) by using ``board[3, 2]``.
     """
 
     # Definition of player symbols
@@ -34,12 +34,6 @@ class Board:
 
     # Column value that is only reached if the column is full
     TEST_VALUE_COL_FULL = (1 << 2 * (BOARD_ROWS - 1))
-
-    # Bit masks for only getting the coins of player one or two
-    MASK_PLAYER_1 = 0
-    for i in range(BOARD_ROWS):
-        MASK_PLAYER_1 |= 1 << 2 * i
-    MASK_PLAYER_2 = MASK_PLAYER_1 << 1
 
     __slots__ = ['state']
 
@@ -55,19 +49,47 @@ class Board:
                 raise ValueError('Invalid state array given.')
         self.state = tuple(state)
 
-    def print(self, print_out=True):
+    @classmethod
+    def parse(cls, inp):
         """
-        Prints a human-readable representation of the board.
+        Creates a Board instance from a string that looks like the return value of draw()
+        """
+        inp = inp.strip()
+        cols = [0] * BOARD_COLS
+        rows = []
+        for line in inp.split('\n'):
+            line = line.strip()
+            if '|' not in line:
+                continue
+            parts = line.strip('|').split('|')
+            if len(parts) != BOARD_COLS:
+                raise ValueError('Line has invalid number of columns: %s' % line)
+            if any(a not in (cls.PLAYER_1, cls.PLAYER_2, ' ') for a in parts):
+                raise ValueError('Invalid coin in line: %s' % line)
+            rows.append(parts)
+
+        if len(rows) != BOARD_ROWS:
+            raise ValueError('Invalid number of rows: %d' % len(rows))
+
+        for i, row in enumerate(reversed(rows)):
+            for j, val in enumerate(row):
+                if val == cls.PLAYER_1:
+                    cols[j] |= 1 << (2 * i)
+                elif val == cls.PLAYER_2:
+                    cols[j] |= 2 << (2 * i)
+
+        return Board(cols)
+
+    def draw(self):
+        """
+        Returns a string with a human-readable representation of the board.
         """
         r = ''
         for row in range(BOARD_ROWS):
             r += '|'
             r += '|'.join([self[row, col] or ' ' for col in range(BOARD_COLS)])
             r += '|\n'
-        if print_out:
-            print(r)
-        else:
-            return r
+        return r
 
     def number_of_coins(self):
         """
@@ -82,7 +104,7 @@ class Board:
         n_coins = self.number_of_coins()
         return 'O' if n_coins % 2 == 0 else 'X'
 
-    def valid_next_boards(self):
+    def next_boards(self):
         """
         Returns a list of boards that are reachable within the next move.
         """
@@ -127,10 +149,10 @@ class Board:
             for colval in self.state:
                 if mask & colval == mask:
                     found += 1
+                    if found >= 4:
+                        return True
                 else:
                     found = 0
-            if found >= 4:
-                return True
 
         # Check if there is a winning combination in any diagonal in "/" direction
         for i in range(0, BOARD_ROWS - 3):
@@ -174,7 +196,7 @@ class Board:
         if len(item) != 2:
             raise TypeError('Board.__getitem__ expects a 2-tuple argument')
 
-        val = self.state[item[1]] & (0b11 << 2 * (BOARD_ROWS - item[0] - 1))
+        val = (self.state[item[1]] >> (2 * (BOARD_ROWS - item[0] - 1))) & 0b11
         return (
             self.PLAYER_1 if val == 1 else (
                 self.PLAYER_2 if val == 2 else None
@@ -186,6 +208,6 @@ class Board:
 
     def __repr__(self):
         return 'Board:\n%s%s' % (
-            self.print(False),
+            self.draw(),
             '-' * (BOARD_COLS * 2 + 1),
         )

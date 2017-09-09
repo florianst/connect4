@@ -4,5 +4,5 @@ gmpy
 
 # Testing
 pytest
-pytest-fancy
+pytest-sugar
 
