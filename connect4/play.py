@@ -5,9 +5,12 @@ from torch.autograd import Variable
 from connect4.board import Board
 
 POSSIBLE_ACTIONS = (0, 1, 2, 3, 4, 5, 6)
+REWARD_WIN = 100
+REWARD_UNDECIDED = -10
+REWARD_LOOSE = -100
 
 
-def select_action(policy, board: Board):
+def select_action(policy, board: Board, noise=0):
     # TODO: is this a good input to the NN or should we transform board.state into an 2d-array first?
 
     # Get probabilities from neural network
@@ -15,14 +18,15 @@ def select_action(policy, board: Board):
     probs = policy(Variable(state))
 
     # Exclude any results that are not allowed
-    mult = np.zeros(len(POSSIBLE_ACTIONS), dtype=np.float32)
+    mult_np = np.zeros(len(POSSIBLE_ACTIONS), dtype=np.float32)
     allowed_actions = board.valid_actions()
     for i in POSSIBLE_ACTIONS:
         if i in allowed_actions:
-            mult[i] = 1
-    mult = Variable(torch.from_numpy(mult))
+            mult_np[i] = 1
+    mult = Variable(torch.from_numpy(mult_np))
+    noise = Variable(torch.from_numpy(mult_np * noise))
 
-    probs = probs * mult
+    probs = probs * mult + noise
     if torch.sum(probs * mult).data[0] < 1e-40:
         # Neural network only offered things that are not allowed, so we go for random
         probs = probs + mult
@@ -57,27 +61,26 @@ def generate_selfplay_session(policy, t_max=100):
         winner = b.winner()
         if winner:
             if winner == player:
-                total_reward = 100
-                print("We won!")
+                total_reward = REWARD_WIN
             elif winner == '-':
-                total_reward = -10
-                print("Nobody won!")
+                total_reward = REWARD_UNDECIDED
+            else:
+                print("Invalid result")
             break
 
         # Other player moves
-        a = select_action(policy, b)
+        a = select_action(policy, b, noise=0.01)
         # TODO: Add more random noise to decision of other player to avoid local minima?
         b = b.insert(a.data[0][0])
 
         winner = b.winner()
         if winner:
             if winner == '-':
-                total_reward = -10
-                print("Nobody won!")
+                total_reward = REWARD_UNDECIDED
             elif winner != player:
-                total_reward = -100
-                print("We lost!")
+                total_reward = REWARD_LOOSE
+            else:
+                print("Invalid result")
             break
 
-    print(b)
     return states, actions, total_reward

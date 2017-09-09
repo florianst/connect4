@@ -16,15 +16,18 @@ def run(n_iterate=100, n_samples=250):
         sessions = [generate_selfplay_session(policy) for k in range(n_samples)]
 
         for states, actions, reward in sessions:
-            for action in actions:
-                action.reinforce(reward)
+            # We only have total rewards at the end of the game so far. We make the assumption that the
+            # move is more relevant for the outcome, if it is at the end of the game. Therefore, we weigh
+            # the rewards with 1/(moves_before_outcome)
+            for j, action in enumerate(reversed(actions)):
+                action.reinforce(reward / (j + 1))
 
             optimizer.zero_grad()
             autograd.backward(actions, [None for _ in actions])
             optimizer.step()
 
         rewards = [s[2] for s in sessions]
-        print("iteration", i, "average_reward=", np.mean(rewards))
+        print("iteration", i, "average_reward=", np.mean(rewards), "games won=", 100*len([s for s in sessions if s[2] > 0])/len(sessions), "%")
         step_rewards.append(np.mean(rewards))
     return step_rewards
 
