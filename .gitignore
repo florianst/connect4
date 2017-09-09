@@ -1,0 +1,11 @@
+env/
+.idea
+__pycache__/
+*.sqw
+*.pyc
+*~
+out/
+out.*
+.cache
+.ropeproject
+
