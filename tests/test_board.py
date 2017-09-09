@@ -9,24 +9,31 @@ def test_insert_some_coins():
     b = b.insert(3)
     assert b.turn() == 'X'
     assert b == Board([0, 0, 0, 0b01, 0, 0, 0])
+    assert b.valid_actions() == (0, 1, 2, 3, 4, 5, 6)
     b = b.insert(2)
     assert b.turn() == 'O'
     assert b == Board([0, 0, 0b10, 0b01, 0, 0, 0])
+    assert b.valid_actions() == (0, 1, 2, 3, 4, 5, 6)
     b = b.insert(2)
     assert b.turn() == 'X'
     assert b == Board([0, 0, 0b0110, 0b01, 0, 0, 0])
+    assert b.valid_actions() == (0, 1, 2, 3, 4, 5, 6)
     b = b.insert(2)
     assert b.turn() == 'O'
     assert b == Board([0, 0, 0b100110, 0b01, 0, 0, 0])
+    assert b.valid_actions() == (0, 1, 2, 3, 4, 5, 6)
     b = b.insert(2)
     assert b.turn() == 'X'
     assert b == Board([0, 0, 0b01100110, 0b01, 0, 0, 0])
+    assert b.valid_actions() == (0, 1, 2, 3, 4, 5, 6)
     b = b.insert(2)
     assert b.turn() == 'O'
     assert b == Board([0, 0, 0b1001100110, 0b01, 0, 0, 0])
+    assert b.valid_actions() == (0, 1, 2, 3, 4, 5, 6)
     b = b.insert(2)
     assert b.turn() == 'X'
     assert b == Board([0, 0, 0b011001100110, 0b01, 0, 0, 0])
+    assert b.valid_actions() == (0, 1, 3, 4, 5, 6)
 
 
 def test_insert_coins_full():
@@ -205,7 +212,7 @@ def test_getitem():
             """
     ),
     (
-            None,
+            '-',
             """
             |O|X|O|X|O|X|O|
             |X|O|X|X|X|O|X|

@@ -114,6 +114,14 @@ class Board:
                 boards.append(self.insert(c))
         return boards
 
+    def valid_actions(self):
+        """
+        Returns a tuple of integers with the indexes of columns that can still be used.
+        """
+        return tuple(
+            i for i, colval in enumerate(self.state) if colval < self.TEST_VALUE_COL_FULL
+        )
+
     def insert(self, column: int):
         """
         Return a new board with the next coin inserted in the n-th column (zero-based index).
@@ -122,7 +130,7 @@ class Board:
         newstate = list(self.state)
 
         if newstate[column] >= self.TEST_VALUE_COL_FULL:
-            raise ValueError('Column is already full!')
+            raise ValueError('Column %d is already full!' % column)
 
         height = newstate[column].bit_length()
         height += height % 2
@@ -184,12 +192,15 @@ class Board:
 
     def winner(self):
         """
-        Return 'X' or 'O' if any of the two players has won, None if the game is not yet decided.
+        Return 'X' or 'O' if any of the two players has won, None if the game is not yet decided,
+        or '-' if the board is full but no winner.
         """
         if self._check_winner(1):
             return self.PLAYER_1
-        if self._check_winner(2):
+        elif self._check_winner(2):
             return self.PLAYER_2
+        elif all([cval >= self.TEST_VALUE_COL_FULL for cval in self.state]):
+            return '-'
         return None
 
     def __getitem__(self, item: tuple):
