@@ -1,13 +1,13 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from connect4.board import BOARD_COLS
+from connect4.board import BOARD_COLS, BOARD_ROWS
 
 
 class PolicyNN(nn.Module):
     def __init__(self):
         super().__init__()
-        self.affine1 = nn.Linear(BOARD_COLS, 128)
+        self.affine1 = nn.Linear(BOARD_COLS * BOARD_ROWS, 128)
         self.affine2 = nn.Linear(128, 128)
         self.affine3 = nn.Linear(128, BOARD_COLS)
 

@@ -1,5 +1,7 @@
 import gmpy
 
+import numpy as np
+
 BOARD_COLS = 7
 BOARD_ROWS = 6
 
@@ -202,6 +204,16 @@ class Board:
         elif all([cval >= self.TEST_VALUE_COL_FULL for cval in self.state]):
             return '-'
         return None
+
+    def matrix(self):
+        """
+        Returns the board as a 2-dimensional array with 0, 1 or 2 values.
+        """
+        board = np.zeros((BOARD_ROWS, BOARD_COLS))
+        for col, colval in enumerate(self.state):
+            for row in range(BOARD_ROWS):
+                board[row, col] = (colval >> (2 * (BOARD_ROWS - row - 1))) & 0b11
+        return board
 
     def __getitem__(self, item: tuple):
         if len(item) != 2:
