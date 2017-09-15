@@ -215,6 +215,22 @@ class Board:
                 board[row, col] = (colval >> (2 * (BOARD_ROWS - row - 1))) & 0b11
         return board
 
+    def matrix_3d(self):
+        """
+        Returns the board as a 3-dimensional array with 0/1 valaues in matrix[row][col][player] format
+        """
+        board = np.zeros((BOARD_ROWS, BOARD_COLS, 3))
+        for col, colval in enumerate(self.state):
+            for row in range(BOARD_ROWS):
+                val = (colval >> (2 * (BOARD_ROWS - row - 1))) & 0b11
+                if val == 1:
+                    board[row, col, 1] = 1
+                elif val == 2:
+                    board[row, col, 2] = 1
+                else:
+                    board[row, col, 0] = 1
+        return board
+
     def __getitem__(self, item: tuple):
         if len(item) != 2:
             raise TypeError('Board.__getitem__ expects a 2-tuple argument')

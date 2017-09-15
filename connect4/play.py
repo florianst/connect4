@@ -11,8 +11,6 @@ REWARD_LOOSE = -100
 
 
 def select_action(policy, board: Board, noise=0):
-    # TODO: is this a good input to the NN or should we transform board.state into an 2d-array first?
-
     # Get probabilities from neural network
     state = torch.from_numpy(board.matrix().reshape(BOARD_ROWS * BOARD_COLS)).float().unsqueeze(0)
     probs = policy(Variable(state))
