@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 import torch.autograd as autograd
 import torch.optim as optim
 
@@ -29,6 +30,13 @@ def run(n_iterate=500, n_samples=250):
         rewards = [s[2] for s in sessions]
         print("iteration", i, "average_reward=", np.mean(rewards), "games won=", 100*len([s for s in sessions if s[2] > 0])/len(sessions), "%")
         step_rewards.append(np.mean(rewards))
+
+        torch.save({
+            'epoch': i,
+            'state_dict': policy.state_dict(),
+            'optimizer': optimizer.state_dict(),
+        }, 'savepoint.json')
+
     return step_rewards
 
 
