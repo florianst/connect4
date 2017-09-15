@@ -9,7 +9,7 @@ policy = PolicyNN()
 optimizer = optim.Adam(policy.parameters(), lr=1e-2)
 
 
-def run(n_iterate=100, n_samples=250):
+def run(n_iterate=500, n_samples=250):
     step_rewards = []
 
     for i in range(n_iterate):
