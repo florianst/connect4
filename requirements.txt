@@ -1,8 +1,7 @@
 # Direct dependencies
 numpy
-gmpy
+gmpy2
 
 # Testing
 pytest
 pytest-sugar
-

@@ -1,4 +1,4 @@
-import gmpy
+import gmpy2 as gmpy
 
 import numpy as np
 
