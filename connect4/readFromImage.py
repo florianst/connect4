@@ -114,18 +114,18 @@ def find_corners(b, margin=40, dimensions=[350, 300]):
     return src, dst, dimensions, margin
 
 
-def generate_discrete_boardconfig(num_cols, num_rows, treshold=1e-3):
+def generate_discrete_boardconfig(b1, b2, num_cols, num_rows, treshold=1e-3):
     # set up grid to extract colour information
     grid = np.array([[50 * (i + 1), 50 * (num_rows - j)] for i in range(num_cols) for j in range(num_rows)])
     grid = np.fliplr(grid)
 
     # extract colour information
     discrete_board = np.ones([num_rows, num_cols])
-    is_yellow = np.reshape(board_yellow_warped_smoothed[grid[:, 0], grid[:, 1]] > treshold, (6, 7), order='F')
-    is_red = np.reshape(board_red_warped_smoothed[grid[:, 0], grid[:, 1]] > treshold, (6, 7), order='F')
+    is_type1 = np.reshape(b1[grid[:, 0], grid[:, 1]] > treshold, (6, 7), order='F')
+    is_type2 = np.reshape(b2[grid[:, 0], grid[:, 1]] > treshold, (6, 7), order='F')
 
-    discrete_board[is_yellow] = 0
-    discrete_board[is_red] = 2
+    discrete_board[is_type1] = 0
+    discrete_board[is_type2] = 2
     return discrete_board
 
 
@@ -135,6 +135,71 @@ def is_valid(boardconfig):
             if boardconfig[row, col] == 1 and boardconfig[row + 1, col] != 1:
                 return False
     return True
+
+
+# def convert_board_datastructure(b, in1, in2):
+#     return bC
+
+
+def process_board(image_path):
+    global start_time
+    board = read_file(image_path)
+
+    # keep track of script runtime for different tasks
+    start_time = datetime.now()
+
+    board_yellow = extract_color(board, yellow, tolerance)
+    board_red = extract_color(board, red, tolerance, board_yellow)
+    board_white = extract_color(board, white, tolerance, board_yellow + board_red)
+    board_blue = extract_color(board, blue, tolerance / 2, board_yellow + board_red + board_white)
+
+    board_white = clean_white_board(board_blue, board_white)
+
+    # add Gaussian smoothing
+    board_yellow = gaussian(board_yellow, sigma=2)
+    board_red = gaussian(board_red, sigma=2)
+    board_white = gaussian(board_white, sigma=2)
+
+    # cut away low values below 95% brightness (i.e. increase contrast)
+    board_total = board_yellow + board_red + board_white
+    thresh = np.percentile(board_total, 95)
+
+    for board_current in [board_yellow, board_red, board_white]:
+        board_current = treshold_brightness(board_current, thresh)
+
+    board_total = board_yellow + board_red + board_white
+    # board_mirrored = np.fliplr(board_total)
+
+    src, dst, dimensions, margin = find_corners(board_total)
+
+    transf = tf.ProjectiveTransform()
+    transf.estimate(src, dst)
+    board_total_warped = tf.warp(board_total, transf, output_shape=(dimensions[1] + margin, dimensions[0] + margin))
+    board_yellow_warped = tf.warp(board_yellow, transf, output_shape=(dimensions[1] + margin, dimensions[0] + margin))
+    board_red_warped = tf.warp(board_red, transf, output_shape=(dimensions[1] + margin, dimensions[0] + margin))
+
+    # add an extra Gaussian smoothing in case the spots don't end up perfectly on the grid points:
+    board_yellow_warped_smoothed = gaussian(board_yellow_warped, sigma=4)
+    board_red_warped_smoothed = gaussian(board_red_warped, sigma=4)
+
+    boardconfig = generate_discrete_boardconfig(board_yellow_warped_smoothed, board_red_warped_smoothed, BOARD_COLS, BOARD_ROWS)
+
+    if is_valid(boardconfig):
+        print_runtime(descr="Total Run")
+        print("Valid game configuration extracted:")
+        # # draw board and original photograph for comparison:
+        # colormap = ListedColormap(['gold', 'white', 'red'])
+        # fig = plt.figure(figsize=(17, 5))
+        # plt1 = fig.add_subplot(121)
+        # plt1.imshow(board)
+        # plt2 = fig.add_subplot(122)
+        # plt2.matshow(boardconfig, cmap=colormap)
+        # plt.gca().invert_yaxis()
+        # plt.show()
+        return boardconfig
+    else:
+        print("No valid game board could be extracted. Please retake photograph.")
+        return None
 
 
 # reference colours
@@ -148,59 +213,10 @@ tolerance = 50
 BOARD_COLS = 7
 BOARD_ROWS = 6
 
-board = read_file("../board_images/board8.jpg")
+image_folder = '../board_images/board'
+image_type = '.jpg'
 
-# keep track of script runtime for different tasks
-start_time = datetime.now()
-
-board_yellow = extract_color(board, yellow, tolerance)
-board_red = extract_color(board, red, tolerance, board_yellow)
-board_white = extract_color(board, white, tolerance, board_yellow + board_red)
-board_blue = extract_color(board, blue, tolerance / 2, board_yellow + board_red + board_white)
-
-board_white = clean_white_board(board_blue, board_white)
-
-# add Gaussian smoothing
-board_yellow = gaussian(board_yellow, sigma=2)
-board_red = gaussian(board_red, sigma=2)
-board_white = gaussian(board_white, sigma=2)
-
-# cut away low values below 95% brightness (i.e. increase contrast)
-board_total = board_yellow + board_red + board_white
-thresh = np.percentile(board_total, 95)
-
-for board_current in [board_yellow, board_red, board_white]:
-    board_current = treshold_brightness(board_current, thresh)
-
-board_total = board_yellow + board_red + board_white
-# board_mirrored = np.fliplr(board_total)
-
-src, dst, dimensions, margin = find_corners(board_total)
-
-transf = tf.ProjectiveTransform()
-transf.estimate(src, dst)
-board_total_warped = tf.warp(board_total, transf, output_shape=(dimensions[1] + margin, dimensions[0] + margin))
-board_yellow_warped = tf.warp(board_yellow, transf, output_shape=(dimensions[1] + margin, dimensions[0] + margin))
-board_red_warped = tf.warp(board_red, transf, output_shape=(dimensions[1] + margin, dimensions[0] + margin))
-
-# add an extra Gaussian smoothing in case the spots don't end up perfectly on the grid points:
-board_yellow_warped_smoothed = gaussian(board_yellow_warped, sigma=4)
-board_red_warped_smoothed = gaussian(board_red_warped, sigma=4)
-
-boardconfig = generate_discrete_boardconfig(BOARD_COLS, BOARD_ROWS)
-
-
-if is_valid(boardconfig):
-    print_runtime(descr="Total Run")
-    print("Valid game configuration extracted:")
-    # draw board and original photograph for comparison:
-    colormap = ListedColormap(['gold', 'white', 'red'])
-    fig = plt.figure(figsize=(17,5))
-    plt1 = fig.add_subplot(121)
-    plt1.imshow(board)
-    plt2 = fig.add_subplot(122)
-    plt2.matshow(boardconfig, cmap=colormap)
-    plt.gca().invert_yaxis()
-    plt.show()
-else:
-    print("No valid game board could be extracted. Please retake photograph.")
+for i in range(19):
+    pathToImage = image_folder + str(i + 1) + image_type
+    print(pathToImage)
+    board_config = process_board(pathToImage)
