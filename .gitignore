@@ -8,4 +8,5 @@ out/
 out.*
 .cache
 .ropeproject
+*.bin
 
