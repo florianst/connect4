@@ -35,7 +35,7 @@ def run(n_iterate=500, n_samples=250):
             'epoch': i,
             'state_dict': policy.state_dict(),
             'optimizer': optimizer.state_dict(),
-        }, 'savepoint.json')
+        }, 'savepoint.bin')
 
     return step_rewards
 
