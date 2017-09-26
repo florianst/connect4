@@ -21,7 +21,7 @@ def run(n_iterate=50000, n_samples=250):
             # move is more relevant for the outcome, if it is at the end of the game. Therefore, we weigh
             # the rewards with 1/(moves_before_outcome)
             for j, action in enumerate(reversed(actions)):
-                action.reinforce(reward / (j + 1))
+                action.reinforce(reward)
 
             optimizer.zero_grad()
             autograd.backward(actions, [None for _ in actions])
@@ -31,11 +31,12 @@ def run(n_iterate=50000, n_samples=250):
         print("iteration", i, "average_reward=", np.mean(rewards), "games won=", 100*len([s for s in sessions if s[2] > 0])/len(sessions), "%")
         step_rewards.append(np.mean(rewards))
 
-        torch.save({
-            'epoch': i,
-            'state_dict': policy.state_dict(),
-            'optimizer': optimizer.state_dict(),
-        }, 'savepoint.bin')
+        if i % 10 == 0:
+            torch.save({
+                'epoch': i,
+                'state_dict': policy.state_dict(),
+                'optimizer': optimizer.state_dict(),
+            }, 'savepoint.bin')
 
     return step_rewards
 

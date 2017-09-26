@@ -42,7 +42,8 @@ def generate_selfplay_session(policy, t_max=100):
     b = Board()
 
     # Decide if we are player 1 or 2
-    player = np.random.choice((Board.PLAYER_1, Board.PLAYER_2), 1)
+    # player = np.random.choice((Board.PLAYER_1, Board.PLAYER_2), 1)
+    player = Board.PLAYER_1
 
     if player == Board.PLAYER_2:
         # We are player two, let player one play first

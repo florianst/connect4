@@ -197,12 +197,17 @@ class Board:
         Return 'X' or 'O' if any of the two players has won, None if the game is not yet decided,
         or '-' if the board is full but no winner.
         """
-        if self._check_winner(1):
+        num_of_coins = self.number_of_coins()
+        if num_of_coins < 7:
+            return None
+
+        if (num_of_coins % 2) == 1 and self._check_winner(1):
             return self.PLAYER_1
-        elif self._check_winner(2):
+        elif (num_of_coins % 2) == 0 and self._check_winner(2):
             return self.PLAYER_2
-        elif all([cval >= self.TEST_VALUE_COL_FULL for cval in self.state]):
+        elif num_of_coins >= BOARD_COLS * BOARD_ROWS:
             return '-'
+
         return None
 
     def matrix(self):
