@@ -1,6 +1,7 @@
 # Direct dependencies
 numpy
 gmpy2
+click
 
 # Testing
 pytest
