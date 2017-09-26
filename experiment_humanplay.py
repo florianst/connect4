@@ -1,5 +1,6 @@
-import click
 import sys
+
+import click
 import torch
 
 from connect4.board import Board, BOARD_COLS
@@ -24,9 +25,18 @@ def print_board(b):
     click.echo(b.draw())
 
 
-def select_human_action(policy, b):
+def select_human_action(b):
     print_board(b)
-    return click.prompt('Please enter a column', type=int) - 1
+    return (click.prompt('Please enter a column', type=int) - 1) % BOARD_COLS
+
+
+def do_human_action(b):
+    while True:
+        try:
+            return b.insert(select_human_action(b))
+        except ValueError as e:
+            click.echo(click.style(str(e), fg='red'))
+
 
 b = Board()
 
@@ -35,8 +45,7 @@ computer_player = Board.PLAYER_1
 
 if computer_player == Board.PLAYER_2:
     # Computer is player two, let player one play first
-    a = select_human_action(policy, b)
-    b = b.insert(a.data[0][0])
+    b = do_human_action(b)
 
 while True:
     # Computer moves
@@ -55,8 +64,7 @@ while True:
         sys.exit(0)
 
     # Other player moves
-    a = select_human_action(policy, b)
-    b = b.insert(a)
+    b = do_human_action(b)
 
     winner = b.winner()
     if winner:
