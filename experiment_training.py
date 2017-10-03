@@ -1,4 +1,5 @@
 import numpy as np
+import time
 import torch
 import torch.autograd as autograd
 import torch.optim as optim
@@ -14,6 +15,7 @@ def run(n_iterate=50000, n_samples=250):
     step_rewards = []
 
     for i in range(n_iterate):
+        t = time.time()
         sessions = [generate_selfplay_session(policy) for k in range(n_samples)]
 
         for states, actions, reward in sessions:
@@ -31,7 +33,9 @@ def run(n_iterate=50000, n_samples=250):
             optimizer.step()
 
         rewards = [s[2] for s in sessions]
-        print("iteration", i, "average_reward=", np.mean(rewards), "games won=", 100*len([s for s in sessions if s[2] > 0])/len(sessions), "%")
+        print("iteration", i, "average_reward=", np.mean(rewards),
+              "games won=", 100*len([s for s in sessions if s[2] > 0])/len(sessions), "%",
+              "took=", time.time() - t, "s")
         step_rewards.append(np.mean(rewards))
 
         if i % 10 == 0:
