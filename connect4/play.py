@@ -68,10 +68,10 @@ def generate_selfplay_session(policy, t_max=100):
             break
 
         # Other player moves
-        #a = select_action(policy, b, noise=0.1)
+        a = select_action(policy, b, noise=0.01)
         # TODO: Add more random noise to decision of other player to avoid local minima?
-        #b = b.insert(a.data[0][0])
-        b = b.insert(np.random.choice(b.valid_actions()))
+        b = b.insert(a.data[0][0])
+        # b = b.insert(np.random.choice(b.valid_actions()))
 
         winner = b.winner()
         if winner:
