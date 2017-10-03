@@ -21,7 +21,10 @@ def run(n_iterate=50000, n_samples=250):
             # move is more relevant for the outcome, if it is at the end of the game. Therefore, we weigh
             # the rewards with 1/(moves_before_outcome)
             for j, action in enumerate(reversed(actions)):
-                action.reinforce(reward)
+                if j == 0:
+                    action.reinforce(reward)
+                else:
+                    action.reinforce(0)
 
             optimizer.zero_grad()
             autograd.backward(actions, [None for _ in actions])
