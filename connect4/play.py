@@ -10,9 +10,11 @@ REWARD_UNDECIDED = -10
 REWARD_LOOSE = -100
 
 
-def select_action(policy, board: Board, noise=0):
+def select_action(policy, board: Board, cuda=False, noise=0):
     # Get probabilities from neural network
     state = torch.from_numpy(board.matrix().reshape(BOARD_ROWS * BOARD_COLS)).float().unsqueeze(0)
+    if cuda:
+        state = state.cuda()
     probs = policy(Variable(state))
 
     # Exclude any results that are not allowed
@@ -31,6 +33,9 @@ def select_action(policy, board: Board, noise=0):
 
     mult = Variable(torch.from_numpy(mult_np))
     noise = Variable(torch.from_numpy(mult_np * noise))
+    if cuda:
+        mult = mult.cuda()
+        noise = noise.cuda()
 
     probs = probs * mult + noise
     if torch.sum(probs * mult).data[0] < 1e-40:
@@ -39,9 +44,9 @@ def select_action(policy, board: Board, noise=0):
     return probs.multinomial()
 
 
-def make_opponent_selfplay(noise=0.01):
+def make_opponent_selfplay(noise=0.01, cuda=False):
     def o(policy, b):
-        a = select_action(policy, b, noise=noise)
+        a = select_action(policy, b, cuda=cuda, noise=noise)
         return b.insert(a.data[0][0])
     return o
 
@@ -66,7 +71,7 @@ def make_opponent_random_with_winning_move():
     return o
 
 
-def generate_session(policy, opponent, t_max=100):
+def generate_session(policy, opponent, cuda=False, t_max=100):
     """
     Play game until end or for t_max rounds.
     returns: list of states, list of actions and sum of rewards
@@ -82,13 +87,13 @@ def generate_session(policy, opponent, t_max=100):
 
     if player == Board.PLAYER_2:
         # We are player two, let player one play first
-        a = select_action(policy, b)
+        a = select_action(policy, b, cuda)
         b = b.insert(a.data[0][0])
 
     for t in range(t_max):
         # We move
         states.append(b)
-        a = select_action(policy, b)
+        a = select_action(policy, b, cuda)
         actions.append(a)
         b = b.insert(a.data[0][0])
 

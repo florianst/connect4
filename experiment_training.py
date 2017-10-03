@@ -14,16 +14,20 @@ optimizer = optim.Adam(policy.parameters(), lr=1e-2)
 
 @click.command()
 @click.option('--iterations', default=50000)
+@click.option('--cuda/--no-cuda', default=False)
 @click.option('--samples', default=250)
 @click.option('--reward-strategy', default='last_move', type=click.Choice(['last_move', 'all_moves']))
 @click.option('--path', type=click.Path(), default='savepoint.bin')
 @click.option('--opponent', default='self', type=click.Choice(['self', 'random', 'random_with_winning_move']))
 @click.option('--selfplay-noise', default=0.01, type=click.FLOAT)
-def run(iterations, samples, path, reward_strategy, opponent, selfplay_noise):
+def run(iterations, samples, path, reward_strategy, opponent, selfplay_noise, cuda):
     step_rewards = []
 
+    if cuda:
+        policy.cuda()
+
     if opponent == 'self':
-        opponent = make_opponent_selfplay(noise=selfplay_noise)
+        opponent = make_opponent_selfplay(noise=selfplay_noise, cuda=cuda)
     elif opponent == 'random':
         opponent = make_opponent_random()
     elif opponent == 'random_with_winning_move':
@@ -31,7 +35,7 @@ def run(iterations, samples, path, reward_strategy, opponent, selfplay_noise):
 
     for i in range(iterations):
         t = time.time()
-        sessions = [generate_session(policy, opponent) for k in range(samples)]
+        sessions = [generate_session(policy, opponent, cuda) for k in range(samples)]
 
         for states, actions, reward in sessions:
             # We only have total rewards at the end of the game so far. We make the assumption that the
