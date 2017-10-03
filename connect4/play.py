@@ -21,6 +21,14 @@ def select_action(policy, board: Board, noise=0):
     for i in POSSIBLE_ACTIONS:
         if i in allowed_actions:
             mult_np[i] = 1
+
+    # Always choose winning move
+    for a in allowed_actions:
+        hypothetical_board = board.insert(a)
+        if hypothetical_board.winner() == board.turn():
+            mult_np = np.zeros(len(POSSIBLE_ACTIONS), dtype=np.float32)
+            mult_np[a] = 1
+
     mult = Variable(torch.from_numpy(mult_np))
     noise = Variable(torch.from_numpy(mult_np * noise))
 
