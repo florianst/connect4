@@ -39,7 +39,34 @@ def select_action(policy, board: Board, noise=0):
     return probs.multinomial()
 
 
-def generate_selfplay_session(policy, t_max=100):
+def make_opponent_selfplay(noise=0.01):
+    def o(policy, b):
+        a = select_action(policy, b, noise=noise)
+        return b.insert(a.data[0][0])
+    return o
+
+
+def make_opponent_random():
+    def o(policy, b):
+        valid_actions = b.valid_actions()
+        return b.insert(np.random.choice(valid_actions))
+    return o
+
+
+def make_opponent_random_with_winning_move():
+    def o(policy, b):
+        valid_actions = b.valid_actions()
+
+        for a in valid_actions:
+            hypothetical_board = b.insert(a)
+            if hypothetical_board.winner() == b.turn():
+                return hypothetical_board
+
+        return b.insert(np.random.choice(valid_actions))
+    return o
+
+
+def generate_session(policy, opponent, t_max=100):
     """
     Play game until end or for t_max rounds.
     returns: list of states, list of actions and sum of rewards
@@ -76,10 +103,7 @@ def generate_selfplay_session(policy, t_max=100):
             break
 
         # Other player moves
-        a = select_action(policy, b, noise=0.01)
-        # TODO: Add more random noise to decision of other player to avoid local minima?
-        b = b.insert(a.data[0][0])
-        # b = b.insert(np.random.choice(b.valid_actions()))
+        b = opponent(policy, b)
 
         winner = b.winner()
         if winner:
