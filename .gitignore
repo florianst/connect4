@@ -10,3 +10,11 @@ out.*
 .ropeproject
 *.bin
 
+savepoint.json
+cvpr_latex/main.aux
+cvpr_latex/main.bbl
+cvpr_latex/main.blg
+cvpr_latex/main.brf
+cvpr_latex/main.fdb_latexmk
+cvpr_latex/main.fls
+cvpr_latex/main.log
