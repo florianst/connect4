@@ -1,10 +1,11 @@
 from skimage import io
 from skimage.filters import gaussian, laplace, median
-# from skimage.morphology import disk
+from skimage import color
 from skimage import transform as tf
 from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+import cv2
 import numpy as np
 
 
@@ -17,6 +18,20 @@ def print_runtime(descr=""):
 def read_file(relpath):
     board = io.imread(relpath)
     return board
+
+def detect_board(haar_xml,im,margin=0):
+    board_cascade = cv2.CascadeClassifier(haar_xml)
+    #img = cv2.imread('../board_images/board3.jpg')
+    grayImg = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+
+    boardProp = board_cascade.detectMultiScale(grayImg)
+    if boardProp.__len__() == 0:
+        croppedIm = im
+    else:
+        boardParameter = boardProp.flatten()
+        croppedIm = im[(boardParameter[1] - margin):(boardParameter[1] + boardParameter[3] + margin), \
+                    (boardParameter[0] - margin):(boardParameter[0] + boardParameter[2] + margin), :]
+    return croppedIm
 
 
 def extract_color(im, col, tol, sup=None):
@@ -141,15 +156,19 @@ def is_valid(boardconfig):
 #     return bC
 
 
-def process_board(image_path):
+def process_board(image_path,cascade_xml_path):
     global start_time
     board = read_file(image_path)
 
     # keep track of script runtime for different tasks
     start_time = datetime.now()
 
+    board = detect_board(cascade_xml_path, board)
+
+
     board_yellow = extract_color(board, yellow, tolerance)
     board_red = extract_color(board, red, tolerance, board_yellow)
+    # board_red = extract_color(board, red, tolerance, board_yellow)
     board_white = extract_color(board, white, tolerance, board_yellow + board_red)
     board_blue = extract_color(board, blue, tolerance / 2, board_yellow + board_red + board_white)
 
@@ -184,9 +203,11 @@ def process_board(image_path):
 
     boardconfig = generate_discrete_boardconfig(board_yellow_warped_smoothed, board_red_warped_smoothed, BOARD_COLS, BOARD_ROWS)
 
+    # plt.imshow(board)
+    # plt.show()
     if is_valid(boardconfig):
-        print_runtime(descr="Total Run")
-        print("Valid game configuration extracted:")
+        # print_runtime(descr="Total Run")
+        print("Valid: " + pathToImage)
         # # draw board and original photograph for comparison:
         # colormap = ListedColormap(['gold', 'white', 'red'])
         # fig = plt.figure(figsize=(17, 5))
@@ -198,7 +219,7 @@ def process_board(image_path):
         # plt.show()
         return boardconfig
     else:
-        print("No valid game board could be extracted. Please retake photograph.")
+        print("Not valid: " + pathToImage)
         return None
 
 
@@ -215,8 +236,9 @@ BOARD_ROWS = 6
 
 image_folder = '../board_images/board'
 image_type = '.jpg'
+cascade_xml_path = 'cascadeHaar.xml'
 
-for i in range(19):
+for i in range(20):
     pathToImage = image_folder + str(i + 1) + image_type
-    print(pathToImage)
-    board_config = process_board(pathToImage)
+    # print(pathToImage)
+    board_config = process_board(pathToImage, cascade_xml_path)

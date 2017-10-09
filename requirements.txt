@@ -2,6 +2,7 @@
 numpy
 gmpy2
 click
+cv2
 
 # Testing
 pytest
