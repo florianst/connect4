@@ -6,13 +6,19 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage[babel,english=british]{csquotes} % cool quotes
+\usepackage[backend=biber,style=authoryear]{biblatex} % bibliogrpahy
 
 % Include other packages here, before hyperref.
 
 % If you comment hyperref and then uncomment it, you should delete
 % egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
 % run, let it finish, and you should be clear).
-\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+%\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+\usepackage[pagebackref=false,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+%\let\cite\parencite
+\addbibresource{literature.bib}
 
 % \cvprfinalcopy % *** Uncomment this line for the final submission
 
@@ -62,8 +68,22 @@ First line of institution2 address\\
 \section{Methods}
 
 \subsection{Vision}
-We provide a framework which features robust and fast extraction of game information(i.e. board configuration).
-The board is identified on the photograph by color and pattern comparision.
+We provide a framework which features extraction of game information(i.e. board configuration) by processing image data.
+The board undergoes a variety of image processing steps and is then identified and checked.
+In case the former process failed, the user is asked to retake the photograph.
+
+\subsubsection{Object Detection using Haar-Like Features}
+The very first step is detection of the connect4 board by using a Haar-Like feature incorporating Haar wavelet functions.
+This processing step is done within the openCV framework \parencite{openCV}.
+After the feature has been trained, the framework features the output of a \textit{Haar cascade xml-file} for fast object detection.
+
+\paragraph{Training} has been performed on a set of 25 \textit{distinct} pictures wich were taken by hand (20) and from the internet (5).
+Training of a Haar cascade needs many (in the order of thousands positive and negative samples;  \cite{kuranov}).
+
+
+
+
+ by color and pattern comparision.
 The image is then cropped and undergoes various image processing steps, such as wrapping, contrast enhancement and color channel extraction.
 The current board configuration can then be read and converted to a computer readable format by thresholded color comparision.
 
@@ -81,8 +101,7 @@ Processing time is $< 0.3$ s (i7-4790K CPU @ 4.00GHz) per image.
 \section{Discussion}
 
 {\small
-\bibliographystyle{ieee}
-\bibliography{egbib}
+\printbibliography
 }
 
 \end{document}
