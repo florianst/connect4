@@ -56,8 +56,23 @@ Florian Störtz
 %%%%%%%%% BODY TEXT
 \section{Introduction}
 
-%-------------------------------------------------------------------------
+In this project, we try to use methods from Reinforcement Learning to solve
+the well-known game \emph{Connect Four}, in which two players take turns in
+inserting coins from the top into the columns of a $7\times 6$ grid board.
+The first player who is able to establish four of their coins consecutively
+within a column, row, or diagonal, wins the game.
+
+It has been shown by Edelkamp and Kissmann that there are exactly $4\,531\,985\,219\,092$ legal positions in this game \cite{Edelkamp2008}. In the 1980s, two authors independently found a strategy for perfect playing of the game \cite{Allis88}\cite{Allen1990} that is quite complicated to perform. The game has since also been solved by brute force and and strong solvers have been created using minimax or negamax methods.
+
+Our interest in this project is whether Reinforcement Learning methods will allow us to solve the game with less effort -- either less computational effort or less effort in algorithm design and implementation.
+
+Additionally, we implement a traditional vision algorithm with the aim to
+recognize the current game state of a Connect Four board from a photo of the
+board. This could be seen as a proof of concept of creating an end-user friendly smartphone application that assists in playing the game.
+
 \section{Methods}
+
+\subsection{Prior Art}
 
 \subsection{Vision}
 We provide a framework which features extraction of game information(i.e. board configuration) by processing image data.
@@ -79,7 +94,10 @@ Training of a Haar cascade needs many (in the order of thousands positive and ne
 The image is then cropped and undergoes various image processing steps, such as wrapping, contrast enhancement and color channel extraction.
 The current board configuration can then be read and converted to a computer readable format by thresholded color comparision.
 
-
+\subsection{Game representation}
+TBD
+\subsection{Learning}
+TBD
 
 
 %-------------------------------------------------------------------------
