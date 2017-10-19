@@ -8,6 +8,7 @@
 \usepackage{amssymb}
 \usepackage[babel,english=british]{csquotes} % cool quotes
 \usepackage[backend=biber,style=authoryear]{biblatex} % bibliogrpahy
+\usepackage[utf8]{inputenc}
 
 % Include other packages here, before hyperref.
 
@@ -20,7 +21,7 @@
 %\let\cite\parencite
 \addbibresource{literature.bib}
 
-% \cvprfinalcopy % *** Uncomment this line for the final submission
+\cvprfinalcopy % *** Uncomment this line for the final submission
 
 \def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
 \def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
@@ -30,27 +31,18 @@
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{\LaTeX\ Author Guidelines for CVPR Proceedings}
+\title{Using Reinforcement Learning to play Connect Four}
 
-\author{Raphael Michel\\
-Institution1\\
-Institution1 address\\
-{\tt\small firstauthor@i1.org}
+\author{Raphael Michel
 % For a paper whose authors are all at the same institution,
 % omit the following lines up until the closing ``}''.
 % Additional authors and addresses can be added with ``\and'',
 % just like the second author.
 % To save space, use either the email address or home page, not both
 \and
-Lucas-Raphael Müller\\
-Institution2\\
-First line of institution2 address\\
-{\tt\small secondauthor@i2.org}
+Lucas-Raphael Müller
 \and
-FLorian Störtz\\
-Institution2\\
-First line of institution2 address\\
-{\tt\small secondauthor@i2.org}
+Florian Störtz
 }
 
 \maketitle
