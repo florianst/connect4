@@ -78,9 +78,15 @@ This processing step is done within the openCV framework \parencite{openCV}.
 After the feature has been trained, the framework features the output of a \textit{Haar cascade xml-file} for fast object detection.
 
 \paragraph{Training} has been performed on a set of 25 \textit{distinct} pictures wich were taken by hand (20) and from the internet (5).
-Training of a Haar cascade needs many (in the order of thousands positive and negative samples;  \cite{kuranov}).
-
-
+Training of a Haar cascade needs many positive and negative samples (order of thousands;  \cite{kuranov}).
+In the case of the unpresence of so many samples (even downloading all results of google image search would be insufficient), openCV features the generation of great amount of sample data by deduction of a set of present images.
+Available image data will then be placed on negative samples in a manipulated way, e.g. distortion and rotation can be applied.
+\begin{figure}[!bh]
+  \centering
+  \includegraphics[width = .3\textwidth]{figures/detection.png}
+  \caption{Baby in a Magnetoencephalograph. \parencite{babyMEG}}
+  \label{fig:meg}
+\end{figure}
 
 
  by color and pattern comparision.
