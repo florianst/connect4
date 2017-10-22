@@ -133,6 +133,15 @@ For simplicity and more understandable results, we therefore assume that our age
 Processing time is $< 0.3$ s (i7-4790K CPU @ 4.00GHz) per image.
 
 \subsection{Learning}
+Our training algorithm was mainly CPU-bound and using a GPU for tensor
+operation did not pose a speed-up since the time wasn't lost in the neural
+network computation but in the game logic (e.g. checks for winning position).
+We tried to quickly port our Python game logic code to Cython code but were
+unable to achieve a speed-up without investing more engineering effort.
+In the end, we were able to simulate $N_g = 250$ games and learn from
+them within $4\mathrm{s}$ on a fast desktop CPU (i7-4790K @ 4.00 GHz)
+or within $8 \mathrm{s}$ on a regular notebook CPU (i5-3210M CPU @ 2.50GHz).
+
 TODO:
 number of iterations, number of games
 self-play vs random play
