@@ -1,11 +1,13 @@
+import time
+
 import click
 import numpy as np
-import time
 import torch
 import torch.autograd as autograd
 import torch.optim as optim
 
-from connect4.play import generate_session, make_opponent_random, make_opponent_random_with_winning_move, make_opponent_selfplay
+from connect4.play import generate_session, make_opponent_random, make_opponent_random_with_winning_move, \
+    make_opponent_selfplay
 from connect4.policy import PolicyNN
 
 policy = PolicyNN()
@@ -27,42 +29,49 @@ def run(iterations, samples, path, reward_strategy, opponent, selfplay_noise, cu
         policy.cuda()
 
     if opponent == 'self':
-        opponent = make_opponent_selfplay(noise=selfplay_noise, cuda=cuda)
+        opponent_f = make_opponent_selfplay(noise=selfplay_noise, cuda=cuda)
     elif opponent == 'random':
-        opponent = make_opponent_random()
+        opponent_f = make_opponent_random()
     elif opponent == 'random_with_winning_move':
-        opponent = make_opponent_random_with_winning_move()
+        opponent_f = make_opponent_random_with_winning_move()
 
-    for i in range(iterations):
-        t = time.time()
-        sessions = [generate_session(policy, opponent, cuda) for k in range(samples)]
+    logfname = 'log-{}-{}-{}-{}.txt'.format(samples, reward_strategy, opponent, selfplay_noise)
+    with open(logfname, 'a') as logf:
 
-        for states, actions, reward in sessions:
-            # We only have total rewards at the end of the game so far. We make the assumption that the
-            # move is more relevant for the outcome, if it is at the end of the game. Therefore, we weigh
-            # the rewards with 1/(moves_before_outcome)
-            for j, action in enumerate(reversed(actions)):
-                if j == 0 or reward_strategy == 'all_moves':
-                    action.reinforce(reward)
-                else:
-                    action.reinforce(0)
+        for i in range(iterations):
+            t = time.time()
+            sessions = [generate_session(policy, opponent_f, cuda) for k in range(samples)]
 
-            optimizer.zero_grad()
-            autograd.backward(actions, [None for _ in actions])
-            optimizer.step()
+            for states, actions, reward in sessions:
+                # We only have total rewards at the end of the game so far. We make the assumption that the
+                # move is more relevant for the outcome, if it is at the end of the game. Therefore, we weigh
+                # the rewards with 1/(moves_before_outcome)
+                for j, action in enumerate(reversed(actions)):
+                    if j == 0 or reward_strategy == 'all_moves':
+                        action.reinforce(reward)
+                    else:
+                        action.reinforce(0)
 
-        rewards = [s[2] for s in sessions]
-        print("iteration", i, "average_reward=", np.mean(rewards),
-              "games won=", 100*len([s for s in sessions if s[2] > 0])/len(sessions), "%",
-              "took=", time.time() - t, "s")
-        step_rewards.append(np.mean(rewards))
+                optimizer.zero_grad()
+                autograd.backward(actions, [None for _ in actions])
+                optimizer.step()
 
-        if i % 10 == 0:
-            torch.save({
-                'epoch': i,
-                'state_dict': policy.state_dict(),
-                'optimizer': optimizer.state_dict(),
-            }, path)
+            rewards = [s[2] for s in sessions]
+            won_games = 100 * len([s for s in sessions if s[2] > 0]) / len(sessions)
+            print("iteration", i, "average_reward=", np.mean(rewards),
+                  "games won=", won_games, "%",
+                  "took=", time.time() - t, "s")
+            step_rewards.append(np.mean(rewards))
+
+            if i % 10 == 0:
+                torch.save({
+                    'epoch': i,
+                    'state_dict': policy.state_dict(),
+                    'optimizer': optimizer.state_dict(),
+                }, path)
+
+            logf.write('{} {} {}\n'.format(i, np.mean(rewards), won_games))
+            logf.flush()
 
     return step_rewards
 
