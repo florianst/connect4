@@ -9,6 +9,9 @@
 \usepackage[babel,english=british]{csquotes} % cool quotes
 \usepackage[backend=biber,style=ieee]{biblatex} % bibliogrpahy
 \usepackage[utf8]{inputenc}
+\usepackage{pgf}
+\usepackage{tikz}
+
 
 % Include other packages here, before hyperref.
 
@@ -115,8 +118,9 @@ This reward will then be used by the employed algorithms for automatic different
 
 The neural network is constructed of a layer of 42 input neurons, one for each cell of the board, then two layers of 64 neurons each and finally a layer of 8 output neurons, one for each column of the board that the next move could put a coin into.
 
-During the simulations, we experimented with two different types of training opponents: random play and self-play.
-In the first case, the opponent just randomly chooses one of the possible moves while in the second case, the same algorithm and neural network is used for playing both sides (but only the actions of the first player are used for learning).
+During the simulations, we experimented with different types of training opponents: random play, random play with winning move recognition and self-play.
+In the first case, the opponent just randomly chooses one of the possible moves while in the second case, a random move is chosen except in situations where there is a move that leads to a win of the opponent.
+In the third case, the same algorithm and neural network that we train and use for the first player is used for playing both sides (but only the actions of the first player are used for learning).
 To avoid the self-play method to just play the same game over and over again, we add some random noise to the decisions of the opponent.
 
 It can be shown that with perfect play on both sides, the first player to insert a coin will always win if and only if they insert their coin in one of the columns adjacent to the middle.
@@ -141,6 +145,17 @@ unable to achieve a speed-up without investing more engineering effort.
 In the end, we were able to simulate $N_g = 250$ games and learn from
 them within $4\mathrm{s}$ on a fast desktop CPU (i7-4790K @ 4.00 GHz)
 or within $8 \mathrm{s}$ on a regular notebook CPU (i5-3210M CPU @ 2.50GHz).
+
+\begin{figure}[t]
+    \begin{center}
+		\noindent
+		\makebox[3.25in]{
+	   		\input{../log-250-last_move-self-0.01.pgf}
+		}
+	\end{center}
+    \caption{Play against random}
+	\label{fig:long}
+\end{figure}
 
 TODO:
 number of iterations, number of games
