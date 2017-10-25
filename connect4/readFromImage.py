@@ -24,7 +24,7 @@ def detect_board(haar_xml,im,margin=0):
     #img = cv2.imread('../board_images/board3.jpg')
     grayImg = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
-    boardProp = board_cascade.detectMultiScale(grayImg)
+    boardProp = board_cascade.detectMultiScale(grayImg, scaleFactor = 1.1, minNeighbors = 1)
     if boardProp.__len__() == 0:
         croppedIm = im
     else:
@@ -208,15 +208,15 @@ def process_board(image_path,cascade_xml_path):
     if is_valid(boardconfig):
         # print_runtime(descr="Total Run")
         print("Valid: " + pathToImage)
-        # # draw board and original photograph for comparison:
-        # colormap = ListedColormap(['gold', 'white', 'red'])
-        # fig = plt.figure(figsize=(17, 5))
-        # plt1 = fig.add_subplot(121)
-        # plt1.imshow(board)
-        # plt2 = fig.add_subplot(122)
-        # plt2.matshow(boardconfig, cmap=colormap)
-        # plt.gca().invert_yaxis()
-        # plt.show()
+        # draw board and original photograph for comparison:
+        colormap = ListedColormap(['gold', 'white', 'red'])
+        fig = plt.figure(figsize=(17, 5))
+        plt1 = fig.add_subplot(121)
+        plt1.imshow(board)
+        plt2 = fig.add_subplot(122)
+        plt2.matshow(boardconfig, cmap=colormap)
+        plt.gca().invert_yaxis()
+        plt.show()
         return boardconfig
     else:
         print("Not valid: " + pathToImage)
