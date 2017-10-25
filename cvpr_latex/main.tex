@@ -146,6 +146,12 @@ In the end, we were able to simulate $N_g = 250$ games and learn from
 them within $4\mathrm{s}$ on a fast desktop CPU (i7-4790K @ 4.00 GHz)
 or within $8 \mathrm{s}$ on a regular notebook CPU (i5-3210M CPU @ 2.50GHz).
 
+Figure \ref{fig:last_move_self_001} shows the winning rate evolving during
+1000 training cycles.
+As one can easily see, the winning rate more or less
+instantly reaches $70–80 \%$ in self-play and does not really change any more.
+Literature suggests that there might be a strong improvement after a huge number of iteration cycles ($> 10^7$) but due to limited project time and server computation resources we haven't been able to research this further.
+
 \begin{figure}[t]
     \begin{center}
 		\noindent
@@ -153,17 +159,73 @@ or within $8 \mathrm{s}$ on a regular notebook CPU (i5-3210M CPU @ 2.50GHz).
 	   		\input{../log-250-last_move-self-0.01.pgf}
 		}
 	\end{center}
-    \caption{Play against random}
-	\label{fig:long}
+    \caption{Training with $N_g=250$, self play with $1\%$ noise, reward given for last move.}
+	\label{fig:last_move_self_001}
+\end{figure}
+We tested different ways to propagate the reward used for the reinforcement learning algorithm.
+In most cases, we just assigned the total reward $r_{total}$ to the last move of the game and did not explicitly specify a reward for all other moves.
+In one experiment, we instead set the reward
+As Figure \ref{fig:all_moves_self_001} shows, this change does not visibly change the results.
+\begin{figure}[t]
+    \begin{center}
+		\noindent
+		\makebox[3.25in]{
+	   		\input{../log-250-all_moves-self-0.01.pgf}
+		}
+	\end{center}
+    \caption{Training with $N_g=250$, self play with $1\%$ noise, reward given for all moves.}
+	\label{fig:all_moves_self_001}
 \end{figure}
 
-TODO:
-number of iterations, number of games
-self-play vs random play
-noise
-reward strategies
+Quite unsurprisingly, the winning rate is a lot higher with around $90 \%$ if we play against a completely random opponent instead of our algorithm itself (see Figure \ref{fig:last_move_random}).
+Even if we modify the random opponent in a way that makes it choose a winning move if possible in the next move, the winning rate still is around $90 \%$ (see Figure \ref{fig:last_move_random_with_winning_move}).
+\begin{figure}[t]
+    \begin{center}
+		\noindent
+		\makebox[3.25in]{
+	   		\input{../log-250-last_move-random-0.01.pgf}
+		}
+	\end{center}
+    \caption{Training with $N_g=250$, randomly playing opponent, reward given for last move.}
+	\label{fig:last_move_random}
+\end{figure}
+\begin{figure}[t]
+    \begin{center}
+		\noindent
+		\makebox[3.25in]{
+	   		\input{../log-250-last_move-random_with_winning_move-0.01.pgf}
+		}
+	\end{center}
+    \caption{Training with $N_g=250$, randomly playing opponent, reward given for last move.}
+	\label{fig:last_move_random_with_winning_move}
+\end{figure}
+
+Unfortunately, even though $70\%$ winning rate against self-play and $90\%$ winning rate against a random player sounds pretty good on first sight, playing against human players shows that the algorithm has only learned some very simple strategies around building columns of coins in the middle and can very easily
+be tricked by a human player.
+
 %-------------------------------------------------------------------------
 \section{Discussion}
+
+
+Unfortunately, we have not been able to train our neural network to play
+the game well enough to reasonably compete with human players.
+This is probably due to a number of reasons, including the naive design of
+our neural network and the local minima our algorithm appears to be trapped in.
+
+While Thill et. al. \cite{Thill} and Ghory \cite{Ghory} show that it is possible to
+achieve good results with reinforcement learning on Connect Four, it requires
+more advanced methods as outlined in their papers and therefore both more
+engineering effort and more computation time.
+
+In future, it would be interesting to replicate the results of the aforementioned
+authors since their code is not publicly available.
+It would also be interesting e.g. to try training against a perfect or near-perfect opponent.
+Unfortunately, we haven't been able to find an implementation of the perfect algorithm that we could use for this purpose and the project time was not sufficient to create one.
+
+We believe that while it is in theory possible to solve Connect Four with
+reinforcement learning methods, it will be less engineering and computation
+effort to create a classical AI based e.g. on minimax algorithms that is also
+able to beat most human players.
 
 {\small
 \printbibliography
