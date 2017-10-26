@@ -89,17 +89,65 @@ After the feature has been trained, the framework features the output of a \text
 Training of a Haar cascade needs many positive and negative samples (order of thousands;  \cite{kuranov}).
 In the case of the unpresence of so many samples (even downloading all results of google image search would be insufficient), openCV features the generation of great amount of sample data by deduction of a set of present images.
 Available image data will then be placed on negative samples in a manipulated way, e.g. distortion and rotation can be applied.
-\begin{figure}[!bh]
+\begin{figure}[bh]
   \centering
   \includegraphics[width = .3\textwidth]{figures/detection.png}
-  \caption{Baby in a Magnetoencephalograph. \parencite{babyMEG}}
-  \label{fig:meg}
+  \caption{Object detection using a Haar Algorithm.}
+  \label{fig:haarDetection}
+\end{figure}
+After several hoursa \textit{cascade.xml} is provided and can be used for image detection easily.
+
+\subsubsection{Filters}
+The image undergoes various filter processes for differentiation between yellow, red and blue and background.
+At the time this abstract was written, colors are being compared hardcoded, so a couple of references are being provided and then use for comparison.
+The image is then divided into multiple binary channels (i.e. red, yellow, blue, background) by a thresholded RGB color comparison.
+\begin{figure}[bh]
+  \centering
+  \includegraphics[width = .3\textwidth]{figures/camera.png}
+  \caption{Original photograph before image processing.}
+  \label{fig:capturedImage}
+\end{figure}
+\begin{figure}[bh]
+  \centering
+  \includegraphics[width = .3\textwidth]{figures/redChannel.png}
+  \caption{Extraction of a binary red channel.}
+  \label{fig:redChannel}
+\end{figure}
+\begin{figure}[bh]
+  \centering
+  \includegraphics[width = .3\textwidth]{figures/yellowChannel.png}
+  \caption{Extraction of a binary yellow channel.}
+  \label{fig:yellowChannel}
+\end{figure}
+% \begin{figure}[bh]
+%   \centering
+%   \includegraphics[width = .3\textwidth]{figures/whiteChannel.png}
+%   \caption{OExtraction of a binary white channel.}
+%   \label{fig:meg}
+% \end{figure}
+Various steps are done as well, as further optimization of white channels but should not be explained in detail.
+
+\subsection{Transformation}
+In the present case, the corners of the connect4 board are needed for the perspective transformation of the board to a standardized one.
+All four corners are found by using the brightest pixel of the sum of red, yellow and background channel which is close to a corner.
+Using this information, the channels can be retransformed and a regular grid can be applied.
+\begin{figure}[bh]
+  \centering
+  \includegraphics[width = .3\textwidth]{figures/grid.png}
+  \caption{Gridpoints of a regular connect4 board.}
+  \label{fig:grid}
+\end{figure}
+\begin{figure}[bh]
+  \centering
+  \includegraphics[width = .3\textwidth]{figures/finalBoard.png}
+  \caption{Visualisation of final representation of a processed board.}
+  \label{fig:final}
 \end{figure}
 
 
- by color and pattern comparision.
-The image is then cropped and undergoes various image processing steps, such as wrapping, contrast enhancement and color channel extraction.
-The current board configuration can then be read and converted to a computer readable format by thresholded color comparision.
+%  by color and pattern comparision.
+% The image is then cropped and undergoes various image processing steps, such as wrapping, contrast enhancement and color channel extraction.
+% The current board configuration can then be read and converted to a computer readable format by thresholded color comparision.
 
 \subsection{State representation}
 Theoretically, we need at least $\lfloor \log_2 3^{6\cdot 7} \rfloor = 67$ bit to store the entire game state, so we could just use a single
@@ -140,7 +188,21 @@ For simplicity and more understandable results, we therefore assume that our age
 \section{Results}
 
 \subsection{Vision}
-Processing time is $< 0.3$ s (i7-4790K CPU @ 4.00GHz) per image.
+The complete image processing time is $< 0.3$ s (i7-4790K CPU @ 4.00GHz) per image.
+
+\subsubsection{Object Detection}
+Figure \ref{fig:haarDetection} shows the visulisation of the object detection using Haar wavelet features.
+A more simple Local Binary Pattern (LBP) has been tried as well, but lead to fewer succesful detections.
+
+\subsubsection{Filters}
+Figure \ref{fig:capturedImage} shows the original image coming from the camera without any image processing steps.
+Figure \ref{fig:redChannel} and \ref{fig:yellowChannel} show the binary channels of the board.
+Note that all processing steps following object detection are carried out no matter detection was successful or not.
+\subsubsection{Transformation}
+Figure \ref{fig:grid} shows the perspectively transformed image with gridpoints on top of it.
+After this step, the final representation of the board can be seen in \ref{fig:final}.
+
+
 
 \subsection{Learning}
 Our training algorithm was mainly CPU-bound and using a GPU for tensor
@@ -232,6 +294,9 @@ We believe that while it is in theory possible to solve Connect Four with
 reinforcement learning methods, it will be less engineering and computation
 effort to create a classical AI based e.g. on minimax algorithms that is also
 able to beat most human players.
+
+\subsection{Vision}
+
 
 {\small
 \printbibliography
