@@ -6,9 +6,10 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage[T1]{fontenc} 
+\usepackage[utf8]{inputenc}
 \usepackage[babel,english=british]{csquotes} % cool quotes
 \usepackage[backend=biber,style=ieee]{biblatex} % bibliogrpahy
-\usepackage[utf8]{inputenc}
 \usepackage{pgf}
 \usepackage{tikz}
 
@@ -18,8 +19,7 @@
 % If you comment hyperref and then uncomment it, you should delete
 % egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
 % run, let it finish, and you should be clear).
-%\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
-\usepackage[pagebackref=false,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false,draft]{hyperref}
+\usepackage[breaklinks=true,bookmarks=false]{hyperref}
 
 %\let\cite\parencite
 \addbibresource{literature.bib}
@@ -135,12 +135,7 @@ Using these four points, the colour channels can be transformed back into a stan
   \caption{Gridpoints of a regular connect4 board.}
   \label{fig:grid}
 \end{figure}
-\begin{figure}[bh]
-  \centering
-  \includegraphics[width = .3\textwidth]{figures/finalBoard.png}
-  \caption{Visualisation of final representation of a processed board.}
-  \label{fig:final}
-\end{figure}
+
 
 
 %  by color and pattern comparision.
@@ -186,6 +181,12 @@ For simplicity and more understandable results, we therefore assume that our age
 
 \subsection{Vision}
 The complete image processing time takes $< 0.3\mathrm{s}$ (i7-4790K CPU @ 4.00GHz) per image.
+\begin{figure}[bh]
+  \centering
+  \includegraphics[width = .3\textwidth]{figures/finalBoard.png}
+  \caption{Visualisation of final representation of a processed board.}
+  \label{fig:final}
+\end{figure}
 
 \subsubsection{Object Detection}
 Figure \ref{fig:haarDetection} shows the visualisation of the object detection using Haar wavelet features.
@@ -287,12 +288,29 @@ Our work indicates that in principle, it is possible to solve Connect Four with
 reinforcement learning methods, but also shows that it would be more straightforward in terms of engineering and computation effort to create a classical AI based e.g. on minimax algorithms. This promises to also be able to beat most human players.
 
 \subsection{Vision}
-Apart from learning algorithms, image recognition was also employed for the purpose of this work. It should be stated that for a better generalization, modifications to the latter should be performed so as to guarantee a reliable board recognition even when it is placed in front of more difficult backgrounds.
+Apart from learning algorithms, image recognition was also employed for the purpose of this work. It should be stated that for a better generalization, modifications to the latter should be performed so as to guarantee a reliable board recognition even when it is placed in front of more challenging backgrounds.
 Machine learning based vision was employed in form of the Haar wavelet object recognition, whereas colour matching and object transformation were still performed in a classical way and may need to be adapted for different environments and configurations.
+Color references might perform well in a semi-classical code manner, where a colour reference of a coin would be found by machine learned object detection and then used for classical filters.
+The use of a smartphone would also allow for hardware and user feedback (i.e. turn on camera light, giving advise or show boxes when detection was successful).
 \paragraph{Object Detection}
-More samples and variations of them would certainly allow for a more stable solution. 
+More samples and variations of them would certainly allow for a more robust solution. 
 One possible way of achieving a more extensive dataset would be to use a webcam and record a video while turning around the board closely and in different environments.\\
-For a proper end-user application, further sanity checks of the extracted board configuration should be implemented as well, possibly parallel to data-taking for the maximum user-friendliness.
+For a proper end-user application, further sanity checks of the extracted board configuration should be implemented as well, possibly parallel to data-taking for the maximum user-friendliness.\\
+When testing the algorithm on unseen images, we observe mixed results.
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width = .3\textwidth]{figures/unseen1.png}
+  \caption{Unseen test image. Detection box too wide.}
+  \label{fig:unseen1}
+\end{figure}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width = .3\textwidth]{figures/unseen2.png}
+  \caption{Unseen test image. Detection box too narrow.}
+  \label{fig:unseen2}
+\end{figure}
+Object recognition results in both too narrow (Figure \ref{fig:unseen2}) and too wide (Figure \ref{fig:unseen1}) detection boxes which can decrease overall recognition.
+However there is no reason known by the authors which would not allow the object recognition code for greater generalisation. Given even small amounts of additional training data in different environments would probably allow for better performance.
 
 
 {\small
