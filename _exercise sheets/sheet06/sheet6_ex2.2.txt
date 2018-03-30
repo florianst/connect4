@@ -1,0 +1,3 @@
+If E(X^) <= E_h(X^h) + epsilon where epsilon >= 0, then X^ would be the true argmin_X of E_h(X). This is therefore not possible.
+
+E(X^) >= E_h(X^h) + E_v(X^v) on the other hand is true. For the case that X^h == X^v, the grid can be viewed as a set of 1d chains which are not mutually interconnected.

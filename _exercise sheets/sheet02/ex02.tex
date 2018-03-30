@@ -1,0 +1,26 @@
+\documentclass[a4paper,landscape]{article}
+\usepackage[a4paper,margin=1in,landscape]{geometry}
+
+\usepackage{amstext} % for \text macro
+\usepackage{array}   % for \newcolumntype macro
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l" column type
+
+
+\begin{document}
+
+
+\begin{table}
+    \begin{tabular}{|L|L|L|L|L|L|L|L|L|L|L|L|L|L|L|L|L|}
+        \hline
+        x_i, i \in \{0, 1, 2\} & 0       & 0       & 0       & 0       & 0       & 0       & 0       & 0      & 1      & 1       & 1       & 1       & 1       & 1       & 1       & 1       \\ \hline
+        x_z & 1       & 2       & 3       & 4       & 5       & 6       & 7       & 8      & 1      & 2       & 3       & 4       & 5       & 6       & 7       & 8       \\ \hline
+        E_0 & a^{1/3} & b^{1/3} & c^{1/3} & d^{1/3} & \infty  & \infty  & \infty  & \infty & \infty & \infty  & \infty  & \infty  & e^{1/3} & f^{1/3} & g^{1/3} & h^{1/3} \\ \hline
+        E_1 & a^{1/3} & b^{1/3} & \infty  & \infty  & e^{1/3} & f^{1/3} & \infty  & \infty & \infty & \infty  & c^{1/3} & d^{1/3} & \infty  & \infty  & g^{1/3} & h^{1/3} \\ \hline
+        E_2 & a^{1/3} & \infty  & c^{1/3} & \infty  & e^{1/3} & \infty  & g^{1/3} & \infty & \infty & b^{1/3} & \infty  & d^{1/3} & \infty  & f^{1/3} & \infty  & h^{1/3} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+such that $E=E_0 \times E_1 \times E_2$
+
+\end{document}
